@@ -1,3 +1,6 @@
+#include <queue>
+#include <vector>
+
 struct AhoCorasick {
     static constexpr int SIG = 26;
     struct Node {

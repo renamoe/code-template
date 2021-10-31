@@ -1,3 +1,5 @@
+#include <vector>
+#include <numeric>
 
 struct DisjointSetUnion {
     std::vector<int> fa;

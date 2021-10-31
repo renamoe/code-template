@@ -1,4 +1,4 @@
-// 单点加，前缀求和
+#include <vector>
 
 struct Fenwick {
     int n;

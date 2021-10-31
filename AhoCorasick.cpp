@@ -1,4 +1,4 @@
-struct AC_Automaton {
+struct AhoCorasick {
     static constexpr int SIG = 26;
     struct Node {
         Node *ch[SIG];
@@ -9,7 +9,7 @@ struct AC_Automaton {
     std::vector<Node> pool;
     int cnt_pool;
     Node *root;
-    AC_Automaton(int size) : pool(size + 1), cnt_pool(1), root(pool.data()) {}
+    AhoCorasick(int size) : pool(size + 1), cnt_pool(1), root(pool.data()) {}
     Node *new_node() {
         return pool.data() + (cnt_pool++);
     }

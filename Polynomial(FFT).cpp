@@ -68,7 +68,7 @@ void idft(std::vector<Complex> &a) {
 
 // 简单卷积
 
-std::vector<Complex> conv(std::vector<Complex> a, std::vector<Complex> b, int lim) {
+std::vector<Complex> operator *(std::vector<Complex> a, std::vector<Complex> b) {
     int tot = a.size() + b.size() - 1;
     int n = 1;
     while (n < tot) n *= 2;
@@ -79,7 +79,7 @@ std::vector<Complex> conv(std::vector<Complex> a, std::vector<Complex> b, int li
     std::vector<Complex> res(n);
     for (int i = 0; i < n; ++i) res[i] = a[i] * b[i];
     idft(res);
-    res.resize(lim);
+    res.resize(tot);
     return res;
 }
 
@@ -87,7 +87,7 @@ std::vector<Complex> conv(std::vector<Complex> a, std::vector<Complex> b, int li
 // MTT
 // Complex 需要开 long double
 
-std::vector<int> mtt(const std::vector<int> &f, const std::vector<int> &g, int p, int lim) {
+std::vector<int> mtt(const std::vector<int> &f, const std::vector<int> &g, int p) {
     int tot = f.size() + g.size() - 1;
     int n = 1;
     while (n < tot) n *= 2;
@@ -117,6 +117,6 @@ std::vector<int> mtt(const std::vector<int> &f, const std::vector<int> &g, int p
         int t3 = (long long)(b[i].real + 0.5) % p;
         res[i] = (((1ll << 30) * t1 + (1ll << 15) * t2 + t3) % p + p) % p;
     }
-    res.resize(lim);
+    res.resize(tot);
     return res;
 }

@@ -63,7 +63,7 @@ void idft(std::vector<int> &a) {
 
 // 简单卷积
 
-std::vector<int> conv(std::vector<int> a, std::vector<int> b, int lim) {
+std::vector<int> operator *(std::vector<int> a, std::vector<int> b) {
     int tot = a.size() + b.size() - 1;
     int n = 1;
     while (n < tot) n *= 2;
@@ -74,7 +74,7 @@ std::vector<int> conv(std::vector<int> a, std::vector<int> b, int lim) {
     dft(b);
     for (int i = 0; i < n; ++i) res[i] = times(a[i], b[i]);
     idft(res);
-    res.resize(lim);
+    res.resize(tot);
     return res;
 }
 

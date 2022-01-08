@@ -29,8 +29,8 @@ private:
     std::vector<CT> dep;
     std::vector<int> inq;
     std::vector<int> cur, ins;
-    FT max_flow;
-    CT min_cost;
+    FT sum_flow;
+    CT sum_cost;
     CT spfa(int S, int T) {
         std::fill_n(dep.begin(), n, -1);
         std::fill_n(inq.begin(), n, 0);
@@ -66,7 +66,7 @@ private:
                 G.e[i].flow -= rlow;
                 G.e[i ^ 1].flow += rlow;
                 rest -= rlow;
-                min_cost += rlow * G.e[i].cost;
+                sum_cost += rlow * G.e[i].cost;
                 if (!rlow) dep[v] = -1;
             }
         }
@@ -77,13 +77,13 @@ public:
     Dinic(int n, Graph<FT, CT> &G)
        : n(n), G(G), dep(n), inq(n), cur(n), ins(n) {}
     std::pair<CT, FT> mcmf(int S, int T) {
-        max_flow = 0;
-        min_cost = 0;
+        sum_flow = 0;
+        sum_cost = 0;
         FT rlow;
         while (spfa(S, T) != -1) {
             std::copy_n(G.head.begin(), n, cur.begin());
-            while (rlow = dfs(S, T, Graph<FT, CT>::Inf), rlow > 0) max_flow += rlow;
+            while (rlow = dfs(S, T, Graph<FT, CT>::Inf), rlow > 0) sum_flow += rlow;
         }
-        return {min_cost, max_flow};
+        return {sum_cost, sum_flow};
     }
 };

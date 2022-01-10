@@ -102,12 +102,12 @@ struct Poly {
     }
     friend Poly operator +(const Poly &a, const Poly &b) {
         std::vector<int> res(std::max(a.size(), b.size()));
-        for (int i = 0; i < int(res.size()); ++i) res[i] = plus(a[i], b[i]);
+        for (int i = 0; i < int(res.size()); ++i) res[i] = norm(a[i] + b[i]);
         return Poly(res);
     }
     friend Poly operator -(const Poly &a, const Poly &b) {
         std::vector<int> res(std::max(a.size(), b.size()));
-        for (int i = 0; i < int(res.size()); ++i) res[i] = plus(a[i], P - b[i]);
+        for (int i = 0; i < int(res.size()); ++i) res[i] = norm(a[i] - b[i] + P);
         return Poly(res);
     }
     friend Poly operator *(Poly a, Poly b) {
@@ -119,7 +119,7 @@ struct Poly {
         b.a.resize(n);
         dft(a.a);
         dft(b.a);
-        for (int i = 0; i < n; ++i) res[i] = times(a[i], b[i]);
+        for (int i = 0; i < n; ++i) res[i] = 1ll * a[i] * b[i] % P;
         idft(res);
         return Poly(res);
     }
@@ -136,14 +136,14 @@ struct Poly {
         if (!size()) return Poly();
         std::vector<int> res(size() - 1);
         for (int i = 0; i < size() - 1; ++i)
-            res[i] = times(i + 1, a[i + 1]);
+            res[i] = 1ll * (i + 1) * a[i + 1] % P;
         return Poly(res);
     }
     Poly integr() const {
         if (!size()) return Poly();
         std::vector<int> res(size() + 1);
         for (int i = 0; i < size(); ++i)
-            res[i + 1] = times(power(i + 1, P - 2), a[i]);
+            res[i + 1] = 1ll * power(i + 1, P - 2) * a[i] % P;
         return Poly(res);
     }
     Poly log(int m) const {

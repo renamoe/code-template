@@ -2,17 +2,20 @@
 
 constexpr int P = 998244353, R = 3;
 
-int plus(const int x, const int y) {
-    return (x + y >= P) ? (x + y - P) : (x + y);
+int norm(const int x) {
+    return x >= P ? (x - P) : x;
 }
-int times(const int x, const int y) {
-    return (long long) x * y % P;
+
+void inc(int &x, const int y) {
+    x += y;
+    if (x >= P) x -= P;
 }
+
 int power(int a, int b) {
     int r = 1;
     while (b) {
-        if (b & 1) r = times(r, a);
-        a = times(a, a);
+        if (b & 1) r = 1ll * r * a % P;
+        a = 1ll * a * a % P;
         b >>= 1;
     }
     return r;
@@ -36,7 +39,7 @@ void dft(std::vector<int> &a) {
             int wn = power(R, (P - 1) >> (k + 1));
             for (int i = 1 << (k - 1); i < (1 << k); ++i) {
                 roots[i * 2] = roots[i];
-                roots[i * 2 + 1] = times(roots[i], wn);
+                roots[i * 2 + 1] = 1ll * roots[i] * wn % P;
             }
             ++k;
         }
@@ -45,9 +48,9 @@ void dft(std::vector<int> &a) {
         for (int i = 0; i < n; i += k * 2) {
             for (int j = 0; j < k; ++j) {
                 int x = a[i + j];
-                int y = times(a[i + k + j], roots[k + j]);
-                a[i + j] = plus(x, y);
-                a[i + k + j] = plus(x, P - y);
+                int y = 1ll * a[i + k + j] * roots[k + j] % P;
+                a[i + j] = norm(x + y);
+                a[i + k + j] = norm(x - y + P);
             }
         }
     }
@@ -58,7 +61,7 @@ void idft(std::vector<int> &a) {
     std::reverse(a.begin() + 1, a.end());
     dft(a);
     int invn = power(n, P - 2);
-    for (int i = 0; i < n; ++i) a[i] = times(a[i], invn);
+    for (int i = 0; i < n; ++i) a[i] = 1ll * a[i] * invn % P;
 }
 
 // 简单卷积
@@ -72,7 +75,7 @@ std::vector<int> operator *(std::vector<int> a, std::vector<int> b) {
     b.resize(n);
     dft(a);
     dft(b);
-    for (int i = 0; i < n; ++i) res[i] = times(a[i], b[i]);
+    for (int i = 0; i < n; ++i) res[i] = 1ll * a[i] * b[i] % P;
     idft(res);
     res.resize(tot);
     return res;

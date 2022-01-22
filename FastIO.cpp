@@ -40,6 +40,7 @@ public:
             x = x * 10 + (c - '0');
             c = next_char();
         }
+        if (sign) x = -x;
         return *this;
     }
     FastIO &operator <<(char c) {

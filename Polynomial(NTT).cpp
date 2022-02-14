@@ -158,4 +158,19 @@ struct Poly {
         }
         return f.modxk(m);
     }
+    Poly rev(int m = -1) const {
+        auto b = a;
+        if (~m) b.resize(m);
+        std::reverse(b.begin(), b.end());
+        return Poly(b);
+    }
+    Poly mod(Poly g) const {
+        int n = size();
+        int m = g.size();
+        if (n < m) return *this;
+        Poly f(a);
+        int lim = n - m + 1;
+        auto q = (f.rev().modxk(lim) * g.rev().modxk(lim).inv(lim)).rev(lim);
+        return (f - q * g).modxk(m);
+    }
 };

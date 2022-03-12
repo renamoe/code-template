@@ -26,7 +26,7 @@ struct Point {
     friend Point operator -(const Point &a, const Point &b) {
         return Point(a.x - b.x, a.y - b.y);
     }
-    friend Point operator *(const Point &a, f64 &b) {
+    friend Point operator *(const Point &a, f64 b) {
         return Point(a.x * b, a.y * b);
     }
     friend f64 operator *(const Point &a, const Point &b) {

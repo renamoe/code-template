@@ -1,3 +1,5 @@
+// 实数
+
 using f64 = double;
 
 constexpr f64 Eps = 1e-9;
@@ -80,3 +82,53 @@ std::vector<Point> half_plane_inter(std::vector<Line> a) {
     p = std::vector<Point>(p.begin() + l, p.begin() + r);
     return p;
 }
+
+// ----------------------------------------------------------------
+
+// 整数
+
+using i64 = long long;
+
+struct Point {
+    int x, y;
+ 
+    Point(int x = 0, int y = 0) : x(x), y(y) {}
+    i64 norm2() const {
+        return (i64) x * x + (i64) y * y;
+    }
+    Point operator -() const {
+        return Point(-x, -y);
+    }
+    friend Point operator +(const Point &a, const Point &b) {
+        return Point(a.x + b.x, a.y + b.y);
+    }
+    friend Point operator -(const Point &a, const Point &b) {
+        return Point(a.x - b.x, a.y - b.y);
+    }
+    friend i64 operator *(const Point &a, const Point &b) {
+        return (i64) a.x * b.x + (i64) a.y * b.y;
+    }
+    friend i64 operator ^(const Point &a, const Point &b) {
+        return (i64) a.x * b.y - (i64) a.y * b.x;
+    }
+    friend bool operator <(const Point &a, const Point &b) {
+        return a.x < b.x || (a.x == b.x && a.y < b.y);
+    }
+};
+ 
+std::vector<Point> convex_hull(std::vector<Point> p) {
+    std::iter_swap(p.begin(), std::min_element(p.begin(), p.end()));
+    std::sort(p.begin() + 1, p.end(), [&](const Point &a, const Point &b) {
+        i64 d = (b - p[0]) ^ (a - p[0]);
+        return d > 0 || (d == 0 && (a - p[0]).norm2() < (b - p[0]).norm2());
+    });
+    std::vector<Point> res(p.size());
+    auto top = res.begin();
+    for (const auto &x : p) {
+        while (top - res.begin() >= 2 && ((x - *(top - 2)) ^ (*(top - 1) - *(top - 2))) <= 0) --top;
+        *top++ = x;
+    }
+    res.erase(top, res.end());
+    return res;
+}
+

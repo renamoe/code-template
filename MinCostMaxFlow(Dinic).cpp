@@ -31,7 +31,7 @@ private:
     std::vector<int> cur, ins;
     FT sum_flow;
     CT sum_cost;
-    CT spfa(int S, int T) {
+    bool spfa(int S, int T) {
         std::fill_n(dep.begin(), n, -1);
         std::fill_n(inq.begin(), n, 0);
         static std::queue<int> q;
@@ -53,7 +53,7 @@ private:
                 }
             }
         }
-        return dep[T];
+        return dep[T] != -1;
     }
     FT dfs(int u, int T, FT lim) {
         if (u == T || !lim) return lim;
@@ -80,7 +80,7 @@ public:
         sum_flow = 0;
         sum_cost = 0;
         FT rlow;
-        while (spfa(S, T) != -1) {
+        while (spfa(S, T)) {
             std::copy_n(G.head.begin(), n, cur.begin());
             while (rlow = dfs(S, T, Graph<FT, CT>::Inf), rlow > 0) sum_flow += rlow;
         }

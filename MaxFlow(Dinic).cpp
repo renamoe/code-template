@@ -1,4 +1,3 @@
-
 template<typename FT> struct Graph {
     static constexpr FT Inf = std::numeric_limits<FT>::max() / 3;
     std::vector<int> head;
@@ -12,7 +11,7 @@ template<typename FT> struct Graph {
         e.emplace_back(Edge{head[u], v, w});
         head[u] = e.size() - 1;
     }
-    void add_flow(int u, int v, FT w) {
+    void addFlow(int u, int v, FT w) {
         add(u, v, w);
         add(v, u, 0);
     }
@@ -48,17 +47,18 @@ private:
             int v = G.e[i].to;
             if (G.e[i].flow && dep[v] == dep[u] + 1) {
                 FT rlow = dfs(v, T, std::min(G.e[i].flow, rest));
+                if (!rlow) dep[v] = -1;
                 G.e[i].flow -= rlow;
                 G.e[i ^ 1].flow += rlow;
                 rest -= rlow;
-                if (!rlow) dep[v] = -1;
+                if (!rest) break;
             }
         }
         return lim - rest;
     }
 public:
     Dinic(int n, Graph<FT> &G) : n(n), G(G), dep(n), cur(n) {}
-    FT max_flow(int S, int T) {
+    FT maxFlow(int S, int T) {
         FT res = 0;
         FT rlow;
         while (bfs(S, T)) {

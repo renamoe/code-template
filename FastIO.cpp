@@ -1,5 +1,5 @@
 
-// 输入：整形
+// 输入：整形，字符串
 // 输出：整形，字符
 
 class FastIO {
@@ -27,6 +27,15 @@ private:
 public:
     FastIO() : p(ibuf), q(ibuf), o(0) {}
     ~FastIO() { flush(); }
+    FastIO &operator >>(char *s) {
+        do {
+            *s = next_char();
+        } while (*s <= 32);
+        while (*s > 32) {
+            *++s = next_char();
+        }
+        return *this;
+    }
     template<typename T>
     FastIO &operator >>(T &x) {
         x = 0;

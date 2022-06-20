@@ -1,6 +1,6 @@
 
 // 输入：整形，字符串
-// 输出：整形，字符
+// 输出：整形，字符，字符串
 
 class FastIO {
 private:
@@ -25,8 +25,15 @@ private:
         o = 0;
     }
 public:
-    FastIO() : p(ibuf), q(ibuf), o(0) {}
-    ~FastIO() { flush(); }
+    FastIO() : p(ibuf), q(ibuf), o(0) {
+        assert(std::freopen("defend.in", "r", stdin));
+        assert(std::freopen("defend.out", "w", stdout));
+    }
+    ~FastIO() {
+        flush();
+        fclose(stdin);
+        fclose(stdout);
+    }
     FastIO &operator >>(char *s) {
         do {
             *s = next_char();
@@ -54,6 +61,12 @@ public:
     }
     FastIO &operator <<(char c) {
         write_char(c);
+        return *this;
+    }
+    FastIO &operator <<(const char *s) {
+        while (*s) {
+            write_char(*s++);
+        }
         return *this;
     }
     template<typename T>

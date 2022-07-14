@@ -17,6 +17,17 @@ struct Point {
     f64 norm2() const {
         return x * x + y * y;
     }
+    f64 norm() const {
+        return std::sqrt(norm2());
+    }
+    Point rotate() const {
+        return Point(-y, x);
+    }
+    Point rotate(f64 a) const {
+        f64 c = std::cos(a);
+        f64 s = std::sin(a);
+        return Point(x * c - y * s, x * s + y * c);
+    }
     Point operator -() const {
         return Point(-x, -y);
     }
@@ -28,6 +39,9 @@ struct Point {
     }
     friend Point operator *(const Point &a, f64 b) {
         return Point(a.x * b, a.y * b);
+    }
+    friend Point operator /(const Point &a, f64 b) {
+        return Point(a.x / b, a.y / b);
     }
     friend f64 operator *(const Point &a, const Point &b) {
         return a.x * b.x + a.y * b.y;

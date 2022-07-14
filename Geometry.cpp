@@ -4,8 +4,8 @@ using f64 = double;
 
 constexpr f64 Eps = 1e-9;
 
-int fcmp(f64 x) {
-    if (std::abs(x) < Eps) return 0;
+int sign(f64 x) {
+    if (std::fabs(x) < Eps) return 0;
     return x > 0 ? 1 : -1;
 }
 
@@ -36,9 +36,33 @@ struct Point {
         return a.x * b.y - a.y * b.x;
     }
     friend bool operator <(const Point &a, const Point &b) {
-        return a.x < b.x || (a.x == b.x && a.y < b.y);
+        if (sign(a.x - b.x) == 0) return sign(a.y - b.y) < 0;
+        return a.x < b.x;
+    }
+    friend bool operator ==(const Point &a, const Point &b) {
+        return sign(a.x - b.x) == 0 && sign(a.y - b.y) == 0;
     }
 };
+
+std::vector<Point> convexHull(std::vector<Point> p) {
+    std::sort(p.begin(), p.end());
+    p.erase(std::unique(p.begin(), p.end()), p.end());
+    std::sort(p.begin() + 1, p.end(), [&](const Point &a, const Point &b) {
+        f64 d = (a - p[0]) ^ (b - p[0]);
+        if (sign(d) == 0) return (a - p[0]).norm2() < (b - p[0]).norm2();
+        return d < 0;
+    });
+    std::vector<Point> res(p.size());
+    auto top = res.begin();
+    for (auto i : p) {
+        while (top - res.begin() >= 2 && sign((i - top[-2]) ^ (top[-1] - top[-2])) <= 0) {
+            --top;
+        }
+        *top++ = i;
+    }
+    res.erase(top, res.end());
+    return res;
+}
 
 struct Line {
     Point s, d;
@@ -49,7 +73,7 @@ struct Line {
         return std::atan2(d.y, d.x);
     }
     friend bool operator <(const Line &a, const Line &b) {
-        if (fcmp(a.angle() - b.angle()) == 0) {
+        if (sign(a.angle() - b.angle()) == 0) {
             return ((b.s - a.s) ^ a.d) > 0;
         }
         return a.angle() < b.angle();
@@ -67,17 +91,17 @@ std::vector<Point> half_plane_inter(std::vector<Line> a) {
     std::vector<Point> p(n);
     int l = 0, r = 0;
     for (int i = 0; i < n; ++i) {
-        if (i > 0 && fcmp(a[i].angle() - a[i - 1].angle()) == 0) continue;
-        while (r - l >= 2 && fcmp((p[r - 2] - a[i].s) ^ a[i].d) > 0) --r;
-        while (r - l >= 2 && fcmp((p[l] - a[i].s) ^ a[i].d) > 0) ++l;
+        if (i > 0 && sign(a[i].angle() - a[i - 1].angle()) == 0) continue;
+        while (r - l >= 2 && sign((p[r - 2] - a[i].s) ^ a[i].d) > 0) --r;
+        while (r - l >= 2 && sign((p[l] - a[i].s) ^ a[i].d) > 0) ++l;
         if (r - l >= 1) p[r - 1] = inter(b[r - 1], a[i]);
         b[r++] = a[i];
     }
-    while (r - l >= 2 && fcmp((p[r - 2] - b[l].s) ^ b[l].d) > 0) --r;
+    while (r - l >= 2 && sign((p[r - 2] - b[l].s) ^ b[l].d) > 0) --r;
     if (r - l >= 2) p[r - 1] = inter(b[l], b[r - 1]);
     b = std::vector<Line>(b.begin() + l, b.begin() + r);
     for (int i = 0; i < r - l; ++i) {
-        if (fcmp(b[i].d ^ b[(i + 1) % (r - l)].d) <= 0) return std::vector<Point>();
+        if (sign(b[i].d ^ b[(i + 1) % (r - l)].d) <= 0) return std::vector<Point>();
     }
     p = std::vector<Point>(p.begin() + l, p.begin() + r);
     return p;

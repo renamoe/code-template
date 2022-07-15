@@ -121,6 +121,28 @@ std::vector<Point> half_plane_inter(std::vector<Line> a) {
     return p;
 }
 
+std::vector<Point> minkowski(std::vector<Point> a, std::vector<Point> b) {
+    int n = a.size();
+    int m = b.size();
+    std::vector<Point> res(n + m);
+    res[0] = a[0] + b[0];
+    Point t = a[0];
+    for (int i = 0; i < n - 1; ++i) a[i] = a[i + 1] - a[i];
+    a[n - 1] = t - a[n - 1];
+    t = b[0];
+    for (int i = 0; i < m - 1; ++i) b[i] = b[i + 1] - b[i];
+    b[m - 1] = t - b[m - 1];
+    int i = 0, j = 0;
+    for (int k = 1; k < n + m; ++k) {
+        if (i < n && (j == m || (a[i] ^ b[j]) <= 0)) {
+            res[k] = res[k - 1] + a[i++];
+        } else {
+            res[k] = res[k - 1] + b[j++];
+        }
+    }
+    return res;
+}
+
 // ----------------------------------------------------------------
 
 // 整数

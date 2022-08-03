@@ -2,11 +2,11 @@
 
 constexpr int P = 998244353, R = 3;
 
-int norm(const int x) {
+int norm(int x) {
     return x >= P ? (x - P) : x;
 }
 
-void inc(int &x, const int y) {
+void inc(int &x, int y) {
     x += y;
     if (x >= P) x -= P;
 }
@@ -64,7 +64,6 @@ void idft(std::vector<int> &a) {
     for (int i = 0; i < n; ++i) a[i] = 1ll * a[i] * invn % P;
 }
 
-// 简单卷积
 
 std::vector<int> operator *(std::vector<int> a, std::vector<int> b) {
     int tot = a.size() + b.size() - 1;
@@ -81,7 +80,6 @@ std::vector<int> operator *(std::vector<int> a, std::vector<int> b) {
     return res;
 }
 
-// 多项式基础操作
 
 struct Poly {
     std::vector<int> a;

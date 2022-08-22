@@ -1,89 +1,79 @@
-#include <vector>
-#include <numeric>
-#include <algorithm>
+template<class T = int>
+struct Dinic {
+    static constexpr int InfF = std::numeric_limits<int>::max();
+    static constexpr T InfC = std::numeric_limits<T>::max();
 
-template<typename FT, typename CT> struct Graph {
-    static constexpr FT Inf = std::numeric_limits<FT>::max() / 3;
-    std::vector<int> head;
     struct Edge {
-        int nxt, to;
-        FT flow;
-        CT cost;
+        int to;
+        int cap;
+        T cost;
     };
-    std::vector<Edge> e;
-    Graph(int n) : head(n, -1) {}
-    void add(int u, int v, FT f, CT c) {
-        e.emplace_back(Edge{head[u], v, f, c});
-        head[u] = e.size() - 1;
-    }
-    void add_flow(int u, int v, FT f, CT c) {
-        add(u, v, f, c);
-        add(v, u, 0, -c);
-    }
-};
 
-template<typename FT, typename CT> class Dinic {
-private:
     int n;
-    Graph<FT, CT> &G;
-    std::vector<CT> dep;
-    std::vector<int> inq;
-    std::vector<int> cur, ins;
-    FT sum_flow;
-    CT sum_cost;
-    bool spfa(int S, int T) {
-        std::fill_n(dep.begin(), n, -1);
-        std::fill_n(inq.begin(), n, 0);
-        static std::queue<int> q;
-        dep[S] = 0;
-        q.push(S);
-        inq[S] = true;
+    std::vector<std::vector<int>> g;
+    std::vector<Edge> e;
+    std::vector<T> d;
+    std::vector<int> cur;
+    std::vector<int> vis;
+    T sumC;
+
+    Dinic(int n) : n(n), g(n) {}
+    void add(int u, int v, int f, T c) {
+        g[u].push_back(e.size());
+        e.push_back({v, f, c});
+        g[v].push_back(e.size());
+        e.push_back({u, 0, -c});
+    }
+    bool spfa(int s, int t) {
+        d.assign(n, InfC);
+        vis.assign(n, false);
+        std::queue<int> q;
+        q.push(s);
+        d[s] = 0;
         while (!q.empty()) {
             int u = q.front();
             q.pop();
-            inq[u] = false;
-            for (int i = G.head[u]; ~i; i = G.e[i].nxt) {
-                int v = G.e[i].to;
-                if (G.e[i].flow && (dep[v] == -1 || dep[v] > dep[u] + G.e[i].cost)) {
-                    dep[v] = dep[u] + G.e[i].cost;
-                    if (!inq[v]) {
+            vis[u] = false;
+            for (int i : g[u]) {
+                int v = e[i].to;
+                if (e[i].cap && d[v] > d[u] + e[i].cost) {
+                    d[v] = d[u] + e[i].cost;
+                    if (!vis[v]) {
+                        vis[v] = true;
                         q.push(v);
-                        inq[v] = true;
                     }
                 }
             }
         }
-        return dep[T] != -1;
+        return d[t] < InfC;
     }
-    FT dfs(int u, int T, FT lim) {
-        if (u == T || !lim) return lim;
-        ins[u] = true;
-        FT rest = lim;
-        for (int &i = cur[u]; ~i; i = G.e[i].nxt) {
-            int v = G.e[i].to;
-            if (!ins[v] && G.e[i].flow && dep[v] == dep[u] + G.e[i].cost) {
-                FT rlow = dfs(v, T, std::min(G.e[i].flow, rest));
-                G.e[i].flow -= rlow;
-                G.e[i ^ 1].flow += rlow;
-                rest -= rlow;
-                sum_cost += rlow * G.e[i].cost;
-                if (!rlow) dep[v] = -1;
+    int dfs(int u, int t, int f) {
+        if (u == t || !f) return f;
+        vis[u] = true;
+        int r = f;
+        for (int &j = cur[u]; j < int(g[u].size()); ++j) {
+            int i = g[u][j];
+            int v = e[i].to;
+            if (e[i].cap && d[v] == d[u] + e[i].cost && !vis[v]) {
+                int a = dfs(v, t, std::min(f, e[i].cap));
+                if (!a) d[v] = InfC;
+                e[i].cap -= a;
+                e[i ^ 1].cap += a;
+                r -= a;
+                sumC += a * e[i].cost;
+                if (!r) break;
             }
         }
-        ins[u] = false;
-        return lim - rest;
+        vis[u] = false;
+        return f - r;
     }
-public:
-    Dinic(int n, Graph<FT, CT> &G)
-       : n(n), G(G), dep(n), inq(n), cur(n), ins(n) {}
-    std::pair<CT, FT> mcmf(int S, int T) {
-        sum_flow = 0;
-        sum_cost = 0;
-        FT rlow;
-        while (spfa(S, T)) {
-            std::copy_n(G.head.begin(), n, cur.begin());
-            while (rlow = dfs(S, T, Graph<FT, CT>::Inf), rlow > 0) sum_flow += rlow;
+    std::pair<int, T> mcmf(int s, int t) {
+        int sumF = 0;
+        sumC = 0;
+        while (spfa(s, t)) {
+            cur.assign(n, 0);
+            sumF += dfs(s, t, InfF);
         }
-        return {sum_cost, sum_flow};
+        return {sumF, sumC};
     }
 };

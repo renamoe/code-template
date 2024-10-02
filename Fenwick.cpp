@@ -21,6 +21,37 @@ template<class T> struct Fenwick {
     }
 };
 
+// 区间加，区间求和
+template<typename T> struct Fenwick {
+    int n;
+    std::vector<T> c, ic;
+ 
+    Fenwick(int _n) : n(_n), c(_n + 1), ic(_n + 1) {}
+    void add(int x, T v) {
+        T xv = x * v;
+        while (x < n) {
+            c[x] += v;
+            ic[x] += xv;
+            x += ~x & (x + 1);
+        }
+    }
+    T query(int x) {
+        T s = 0, ss = 0;
+        for (int i = x; ~i; i -= ~i & (i + 1)) {
+            s += c[i];
+            ss += ic[i];
+        }
+        return s * (x + 1) - ss;
+    }
+    void add(int l, int r, T v) { // [l, r]
+        add(l, v);
+        add(r + 1, -v);
+    }
+    T query(int l, int r) { // [l, r]
+        return query(r) - (l ? query(l - 1) : 0);
+    }
+};
+
 template<class T> struct FenwickCdq {
     int n;
     std::vector<std::vector<T>> s;
